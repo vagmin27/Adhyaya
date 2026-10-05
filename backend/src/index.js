@@ -12,13 +12,16 @@ validateEnv();
 
 connectDB()
 .then(() => {
-    app.listen(env.PORT, () => {
-        console.log(`⚙️ Server is running at port : ${env.PORT}`);
-    })
+    const server = app.listen(env.PORT, () => {
+        const address = server.address();
+        const port = typeof address === "object" && address !== null ? address.port : env.PORT;
+        console.log(`⚙️ Server is running at port : ${port}`);
+    });
 })
 .catch((err) => {
-    console.log("MONGO db connection failed !!! ", err);
-})
+    console.error("MONGO db connection failed !!! ", err);
+    process.exit(1);
+});
 
 
 

@@ -4,17 +4,31 @@ dotenv.config({
     path: "./.env"
 });
 
-const requiredEnvVars = [
-    "MONGODB_URI",
-    "ACCESS_TOKEN_SECRET",
-    "REFRESH_TOKEN_SECRET"
-];
-
 export const validateEnv = () => {
-    const missing = requiredEnvVars.filter((key) => {
-        const val = process.env[key];
-        return !val || val.trim() === "";
-    });
+    const isProduction = process.env.NODE_ENV === "production";
+    const missing = [];
+
+    if (!process.env.MONGODB_URI || process.env.MONGODB_URI.trim() === "") {
+        missing.push("MONGODB_URI");
+    }
+
+    if (!process.env.ACCESS_TOKEN_SECRET || process.env.ACCESS_TOKEN_SECRET.trim() === "") {
+        if (isProduction) {
+            missing.push("ACCESS_TOKEN_SECRET");
+        } else {
+            process.env.ACCESS_TOKEN_SECRET = "dev_default_access_token_secret_key_12345";
+            console.warn("⚠️  ACCESS_TOKEN_SECRET is not set in .env. Using fallback development secret.");
+        }
+    }
+
+    if (!process.env.REFRESH_TOKEN_SECRET || process.env.REFRESH_TOKEN_SECRET.trim() === "") {
+        if (isProduction) {
+            missing.push("REFRESH_TOKEN_SECRET");
+        } else {
+            process.env.REFRESH_TOKEN_SECRET = "dev_default_refresh_token_secret_key_12345";
+            console.warn("⚠️  REFRESH_TOKEN_SECRET is not set in .env. Using fallback development secret.");
+        }
+    }
 
     if (missing.length > 0) {
         throw new Error(
@@ -28,9 +42,13 @@ export const env = {
     PORT: process.env.PORT || 8000,
     MONGODB_URI: process.env.MONGODB_URI,
     CORS_ORIGIN: process.env.CORS_ORIGIN || "*",
-    ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET,
+    get ACCESS_TOKEN_SECRET() {
+        return process.env.ACCESS_TOKEN_SECRET;
+    },
     ACCESS_TOKEN_EXPIRY: process.env.ACCESS_TOKEN_EXPIRY || "1d",
-    REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
+    get REFRESH_TOKEN_SECRET() {
+        return process.env.REFRESH_TOKEN_SECRET;
+    },
     REFRESH_TOKEN_EXPIRY: process.env.REFRESH_TOKEN_EXPIRY || "10d",
     CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
     CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
