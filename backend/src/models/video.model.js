@@ -44,4 +44,7 @@ const videoSchema = new Schema(
 
 videoSchema.plugin(mongooseAggregatePaginate)
 
+// Compound index to optimize querying user's videos sorted by creation date for dashboard
+videoSchema.index({ owner: 1, createdAt: -1 });
+
 export const Video = mongoose.model("Video", videoSchema)

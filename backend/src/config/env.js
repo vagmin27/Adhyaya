@@ -30,12 +30,33 @@ export const validateEnv = () => {
         }
     }
 
+    if (
+        process.env.ACCESS_TOKEN_SECRET &&
+        process.env.REFRESH_TOKEN_SECRET &&
+        process.env.ACCESS_TOKEN_SECRET === process.env.REFRESH_TOKEN_SECRET
+    ) {
+        console.warn("ACCESS_TOKEN_SECRET and REFRESH_TOKEN_SECRET should not be identical for security.");
+    }
+
+    if (isProduction) {
+        if (!process.env.CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME.trim() === "") {
+            missing.push("CLOUDINARY_CLOUD_NAME");
+        }
+        if (!process.env.CLOUDINARY_API_KEY || process.env.CLOUDINARY_API_KEY.trim() === "") {
+            missing.push("CLOUDINARY_API_KEY");
+        }
+        if (!process.env.CLOUDINARY_API_SECRET || process.env.CLOUDINARY_API_SECRET.trim() === "") {
+            missing.push("CLOUDINARY_API_SECRET");
+        }
+    }
+
     if (missing.length > 0) {
         throw new Error(
             `Missing required environment variable(s): ${missing.join(", ")}. Please check your .env file.`
         );
     }
 };
+
 
 export const env = {
     NODE_ENV: process.env.NODE_ENV || "development",

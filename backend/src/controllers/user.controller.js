@@ -1,10 +1,11 @@
+import fs from "fs";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import {ApiError} from "../utils/ApiError.js"
-import { User} from "../models/user.model.js"
-import {uploadOnCloudinary} from "../utils/cloudinary.js"
+import { ApiError } from "../utils/ApiError.js";
+import { User } from "../models/user.model.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { cookieOptions } from "../config/env.js";
-import jwt from "jsonwebtoken"
+import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 
 
@@ -44,18 +45,23 @@ const registerUser = asyncHandler( async (req, res) => {
     })
 
     if (existedUser) {
+        if (req.files) {
+            const files = Object.values(req.files).flat();
+            files.forEach((file) => {
+                if (file?.path && fs.existsSync(file.path)) {
+                    try { fs.unlinkSync(file.path); } catch (_) {}
+                }
+            });
+        }
         throw new ApiError(409, "User with email or username already exists")
     }
-    //console.log(req.files);
 
-    const avatarLocalPath = req.files?.avatar[0]?.path;
-    //const coverImageLocalPath = req.files?.coverImage[0]?.path;
+    const avatarLocalPath = req.files?.avatar?.[0]?.path;
 
     let coverImageLocalPath;
     if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {
         coverImageLocalPath = req.files.coverImage[0].path
     }
-    
 
     if (!avatarLocalPath) {
         throw new ApiError(400, "Avatar file is required")
@@ -67,7 +73,6 @@ const registerUser = asyncHandler( async (req, res) => {
     if (!avatar) {
         throw new ApiError(400, "Avatar file is required")
     }
-   
 
     const user = await User.create({
         fullName,
@@ -87,7 +92,7 @@ const registerUser = asyncHandler( async (req, res) => {
     }
 
     return res.status(201).json(
-        new ApiResponse(200, createdUser, "User registered Successfully")
+        new ApiResponse(201, createdUser, "User registered successfully")
     )
 
 } )
@@ -380,7 +385,7 @@ const getUserChannelProfile = asyncHandler(async(req, res) => {
     ])
 
     if (!channel?.length) {
-        throw new ApiError(404, "channel does not exists")
+        throw new ApiError(404, "Channel does not exist")
     }
 
     return res

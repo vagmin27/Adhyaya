@@ -1,7 +1,24 @@
+import fs from "fs";
 import { validate } from "../middlewares/validate.middleware.js";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const USERNAME_REGEX = /^[a-zA-Z0-9_.-]+$/;
+
+const cleanupFiles = (files) => {
+    if (!files) return;
+    const fileList = Array.isArray(files) ? files : Object.values(files).flat();
+    fileList.forEach((file) => {
+        if (file?.path) {
+            try {
+                if (fs.existsSync(file.path)) {
+                    fs.unlinkSync(file.path);
+                }
+            } catch (err) {
+                // Ignore cleanup error
+            }
+        }
+    });
+};
 
 export const validateRegister = (req) => {
     const errors = [];
@@ -41,8 +58,13 @@ export const validateRegister = (req) => {
         errors.push({ field: "password", message: "Password must be at least 6 characters long" });
     }
 
+    if (errors.length > 0 && req.files) {
+        cleanupFiles(req.files);
+    }
+
     return errors;
 };
+
 
 export const validateLogin = (req) => {
     const errors = [];

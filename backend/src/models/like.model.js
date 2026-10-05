@@ -21,4 +21,7 @@ const likeSchema = new Schema({
     
 }, {timestamps: true})
 
+// Index on video to optimize aggregating and looking up likes on videos for dashboard
+likeSchema.index({ video: 1 });
+
 export const Like = mongoose.model("Like", likeSchema)

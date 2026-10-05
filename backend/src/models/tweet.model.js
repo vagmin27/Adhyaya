@@ -1,15 +1,23 @@
-import mongoose, {Schema} from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
-const tweetSchema = new Schema({
-    content: {
-        type: String,
-        required: true
+const tweetSchema = new Schema(
+    {
+        content: {
+            type: String,
+            required: [true, "Tweet content is required"],
+            trim: true
+        },
+        owner: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+            index: true
+        }
     },
-    owner: {
-        type: Schema.Types.ObjectId,
-        ref: "User"
-    }
-}, {timestamps: true})
+    { timestamps: true }
+);
 
+// Compound index to optimize querying user's tweets sorted by creation date
+tweetSchema.index({ owner: 1, createdAt: -1 });
 
-export const Tweet = mongoose.model("Tweet", tweetSchema)
+export const Tweet = mongoose.model("Tweet", tweetSchema);
