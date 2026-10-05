@@ -17,7 +17,7 @@ export const validateEnv = () => {
             missing.push("ACCESS_TOKEN_SECRET");
         } else {
             process.env.ACCESS_TOKEN_SECRET = "dev_default_access_token_secret_key_12345";
-            console.warn("⚠️  ACCESS_TOKEN_SECRET is not set in .env. Using fallback development secret.");
+            console.warn("ACCESS_TOKEN_SECRET is not set in .env. Using fallback development secret.");
         }
     }
 
@@ -26,7 +26,7 @@ export const validateEnv = () => {
             missing.push("REFRESH_TOKEN_SECRET");
         } else {
             process.env.REFRESH_TOKEN_SECRET = "dev_default_refresh_token_secret_key_12345";
-            console.warn("⚠️  REFRESH_TOKEN_SECRET is not set in .env. Using fallback development secret.");
+            console.warn("REFRESH_TOKEN_SECRET is not set in .env. Using fallback development secret.");
         }
     }
 

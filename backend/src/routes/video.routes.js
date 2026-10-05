@@ -11,7 +11,11 @@ import {verifyJWT} from "../middlewares/auth.middleware.js"
 import {upload} from "../middlewares/multer.middleware.js"
 import {
     getAllVideosValidator,
-    getVideoByIdValidator
+    getVideoByIdValidator,
+    publishVideoValidator,
+    updateVideoValidator,
+    deleteVideoValidator,
+    togglePublishStatusValidator
 } from "../validators/video.validator.js"
 
 const router = Router();
@@ -31,15 +35,18 @@ router
                 maxCount: 1,
             },
         ]),
+        publishVideoValidator,
         publishAVideo
     );
 
 router
+    .route("/toggle/publish/:videoId")
+    .patch(verifyJWT, togglePublishStatusValidator, togglePublishStatus);
+
+router
     .route("/:videoId")
     .get(getVideoByIdValidator, getVideoById)
-    .delete(verifyJWT, deleteVideo)
-    .patch(verifyJWT, upload.single("thumbnail"), updateVideo);
-
-router.route("/toggle/publish/:videoId").patch(verifyJWT, togglePublishStatus);
+    .delete(verifyJWT, deleteVideoValidator, deleteVideo)
+    .patch(verifyJWT, upload.single("thumbnail"), updateVideoValidator, updateVideo);
 
 export default router
