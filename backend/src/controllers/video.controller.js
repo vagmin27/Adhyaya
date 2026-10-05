@@ -8,9 +8,74 @@ import {uploadOnCloudinary} from "../utils/cloudinary.js"
 
 
 const getAllVideos = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query
-    //TODO: get all videos based on query, sort, pagination
-})
+    const { page = 1, limit = 10, query, sortBy = "createdAt", sortType = "desc", userId } = req.query;
+
+    const pipeline = [];
+
+    // Filter by published videos only
+    const match = {
+        isPublished: true
+    };
+
+    if (query && typeof query === "string" && query.trim() !== "") {
+        match.$or = [
+            { title: { $regex: query.trim(), $options: "i" } },
+            { description: { $regex: query.trim(), $options: "i" } }
+        ];
+    }
+
+    if (userId) {
+        match.owner = new mongoose.Types.ObjectId(userId);
+    }
+
+    pipeline.push({ $match: match });
+
+    // Sort order
+    const sortOrder = String(sortType).toLowerCase() === "asc" ? 1 : -1;
+    pipeline.push({
+        $sort: {
+            [sortBy]: sortOrder
+        }
+    });
+
+    // Lookup owner basic details
+    pipeline.push(
+        {
+            $lookup: {
+                from: "users",
+                localField: "owner",
+                foreignField: "_id",
+                as: "owner",
+                pipeline: [
+                    {
+                        $project: {
+                            username: 1,
+                            fullName: 1,
+                            avatar: 1
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $addFields: {
+                owner: {
+                    $first: "$owner"
+                }
+            }
+        }
+    );
+
+    const aggregate = Video.aggregate(pipeline);
+    const videos = await Video.aggregatePaginate(aggregate, {
+        page: parseInt(page, 10) || 1,
+        limit: parseInt(limit, 10) || 10
+    });
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, videos, "Videos fetched successfully"));
+});
 
 const publishAVideo = asyncHandler(async (req, res) => {
     const { title, description} = req.body
@@ -18,9 +83,63 @@ const publishAVideo = asyncHandler(async (req, res) => {
 })
 
 const getVideoById = asyncHandler(async (req, res) => {
-    const { videoId } = req.params
-    //TODO: get video by id
-})
+    const { videoId } = req.params;
+
+    if (!isValidObjectId(videoId)) {
+        throw new ApiError(400, "Invalid video ID");
+    }
+
+    const video = await Video.aggregate([
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(videoId),
+                isPublished: true
+            }
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "owner",
+                foreignField: "_id",
+                as: "owner",
+                pipeline: [
+                    {
+                        $project: {
+                            username: 1,
+                            fullName: 1,
+                            avatar: 1
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $addFields: {
+                owner: {
+                    $first: "$owner"
+                }
+            }
+        }
+    ]);
+
+    if (!video?.length) {
+        throw new ApiError(404, "Video not found");
+    }
+
+    // Increment views by 1 only after finding the video
+    await Video.findByIdAndUpdate(videoId, {
+        $inc: {
+            views: 1
+        }
+    });
+
+    const videoData = video[0];
+    videoData.views = (videoData.views || 0) + 1;
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, videoData, "Video fetched successfully"));
+});
 
 const updateVideo = asyncHandler(async (req, res) => {
     const { videoId } = req.params
