@@ -1,7 +1,7 @@
 {
-  "name": "chai-backend",
+  "name": "Adhyaya",
   "version": "1.0.0",
-  "description": "a backend at chai aur code channel - youtube",
+  "description": "Backend service for Adhyaya",
   "type": "module",
   "main": "index.js",
   "scripts": {
@@ -10,9 +10,9 @@
   "keywords": [
     "javascript",
     "backend",
-    "chai"
+    "adhyaya"
   ],
-  "author": "Hitesh Choudhary",
+  "author": "Vagmin",
   "license": "ISC",
   "devDependencies": {
     "nodemon": "^3.0.1",

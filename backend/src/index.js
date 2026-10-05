@@ -1,32 +1,36 @@
-// require('dotenv').config({path: './env'})
-import dotenv from "dotenv"
+import dotenv from "dotenv";
+import dns from "node:dns";
 import connectDB from "./db/index.js";
-import {app} from './app.js'
+import { app } from "./app.js";
 import { validateEnv, env } from "./config/env.js";
 
 dotenv.config({
-    path: './.env'
-})
+    path: "./.env"
+});
+
+// Use Cloudflare DNS because the system DNS resolver
+// is refusing MongoDB Atlas SRV queries.
+dns.setServers(["1.1.1.1", "1.0.0.1"]);
 
 validateEnv();
 
 connectDB()
-.then(() => {
-    const server = app.listen(env.PORT, () => {
-        const address = server.address();
-        const port = typeof address === "object" && address !== null ? address.port : env.PORT;
-        console.log(`⚙️ Server is running at port : ${port}`);
+    .then(() => {
+        const server = app.listen(env.PORT, () => {
+            const address = server.address();
+
+            const port =
+                typeof address === "object" && address !== null
+                    ? address.port
+                    : env.PORT;
+
+            console.log(`⚙️ Server is running at port : ${port}`);
+        });
+    })
+    .catch((err) => {
+        console.error("MONGO db connection failed !!! ", err);
+        process.exit(1);
     });
-})
-.catch((err) => {
-    console.error("MONGO db connection failed !!! ", err);
-    process.exit(1);
-});
-
-
-
-
-
 
 
 

@@ -1,4 +1,4 @@
-# chai aur backend  series 
+# Adhyaya Backend Series 
 
 This is a video series on backend with javascript
 - [Model link](https://app.eraser.io/workspace/YtPqZ1VogxGy1jzIDkzj?origin=share)
@@ -16,9 +16,9 @@ Project uses all standard practices like JWT, bcrypt, access tokens, refresh Tok
 ---
 Top Contributer to complete all TODOs
 
-1. Spiderman (just sample)  [Link to Repo](https://www.youtube.com/@chaiaurcode)
+1. Spiderman (just sample)  [Link to Repo](https://github.com/vagmin27/Adhyaya)
 
 --- 
 ## How to contribute in this open source Project
 
-First, please understand that this is not your regular project to merge your PR. This repo requires you to finish all assignments that are in controller folder. We don't accept half work, please finish all controllers and then reach us out on [Discord](https://hitesh.ai/discord) or [Twitter](https://twitter.com/@hiteshdotcom) and after checking your repo, I will add link to your repo in this readme.
+First, please understand that this is not your regular project to merge your PR. This repo requires you to finish all assignments that are in controller folder. We don't accept half work, please finish all controllers and then reach us out on [Discord](https://discord.gg/adhyaya) or [Twitter](https://twitter.com/@vagmin) and after checking your repo, I will add link to your repo in this readme.
