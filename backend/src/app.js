@@ -40,6 +40,14 @@ import commentRouter from "./routes/comment.routes.js"
 import likeRouter from "./routes/like.routes.js"
 import playlistRouter from "./routes/playlist.routes.js"
 import dashboardRouter from "./routes/dashboard.routes.js"
+import courseRouter from "./routes/course.routes.js"
+import chapterRouter from "./routes/chapter.routes.js"
+import lessonRouter from "./routes/lesson.routes.js"
+import enrollmentRouter from "./routes/enrollment.routes.js"
+import progressRouter from "./routes/progress.routes.js"
+import assessmentRouter from "./routes/assessment.routes.js"
+import assessmentAttemptRouter from "./routes/assessmentAttempt.routes.js"
+import skillRouter from "./routes/skill.routes.js"
 
 //routes declaration
 app.use("/api/v1/healthcheck", healthcheckRouter)
@@ -51,6 +59,14 @@ app.use("/api/v1/comments", commentRouter)
 app.use("/api/v1/likes", likeRouter)
 app.use("/api/v1/playlist", playlistRouter)
 app.use("/api/v1/dashboard", dashboardRouter)
+app.use("/api/v1/courses", courseRouter)
+app.use("/api/v1/chapters", chapterRouter)
+app.use("/api/v1/lessons", lessonRouter)
+app.use("/api/v1/enrollments", enrollmentRouter)
+app.use("/api/v1/progress", progressRouter)
+app.use("/api/v1/assessments", assessmentRouter)
+app.use("/api/v1/assessment-attempts", assessmentAttemptRouter)
+app.use("/api/v1/skills", skillRouter)
 
 // 404 handler for unmatched routes
 app.use((req, res, next) => {

@@ -65,24 +65,34 @@ const registerUser = asyncHandler( async (req, res) => {
         coverImageLocalPath = req.files.coverImage[0].path
     }
 
-    if (!avatarLocalPath) {
-        throw new ApiError(400, "Avatar file is required")
+    let avatarUrl = "";
+    if (avatarLocalPath) {
+        const avatar = await uploadOnCloudinary(avatarLocalPath);
+        if (avatar?.url) {
+            avatarUrl = avatar.url;
+        }
     }
 
-    const avatar = await uploadOnCloudinary(avatarLocalPath)
-    const coverImage = await uploadOnCloudinary(coverImageLocalPath)
+    if (!avatarUrl) {
+        avatarUrl = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(fullName || username)}`;
+    }
 
-    if (!avatar) {
-        throw new ApiError(400, "Avatar file is required")
+    let coverImageUrl = "";
+    if (coverImageLocalPath) {
+        const coverImage = await uploadOnCloudinary(coverImageLocalPath);
+        if (coverImage?.url) {
+            coverImageUrl = coverImage.url;
+        }
     }
 
     const user = await User.create({
         fullName,
-        avatar: avatar.url,
-        coverImage: coverImage?.url || "",
+        avatar: avatarUrl,
+        coverImage: coverImageUrl,
         email, 
         password,
-        username: username.toLowerCase()
+        username: username.toLowerCase(),
+        role: "student"
     })
 
     const createdUser = await User.findById(user._id).select(

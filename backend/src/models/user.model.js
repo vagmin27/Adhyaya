@@ -26,11 +26,17 @@ const userSchema = new Schema(
             index: true
         },
         avatar: {
-            type: String, // cloudinary url
-            required: true,
+            type: String, // cloudinary url or default fallback
+            default: "https://api.dicebear.com/7.x/initials/svg?seed=User"
         },
         coverImage: {
             type: String, // cloudinary url
+            default: ""
+        },
+        role: {
+            type: String,
+            enum: ["student", "instructor", "admin"],
+            default: "student"
         },
         watchHistory: [
             {
@@ -48,9 +54,15 @@ const userSchema = new Schema(
 
     },
     {
-        timestamps: true
+        timestamps: true,
+        toJSON: { virtuals: true },
+        toObject: { virtuals: true }
     }
 )
+
+userSchema.virtual("isAdmin").get(function () {
+    return this.role === "admin";
+});
 
 userSchema.pre("save", async function (next) {
     if(!this.isModified("password")) return next();
@@ -69,7 +81,8 @@ userSchema.methods.generateAccessToken = function(){
             _id: this._id,
             email: this.email,
             username: this.username,
-            fullName: this.fullName
+            fullName: this.fullName,
+            role: this.role || "student"
         },
         process.env.ACCESS_TOKEN_SECRET,
         {
